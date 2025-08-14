@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Moja Škola </title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: #111732;
+      --muted: #8ea0b6;
+      --text: #eaf2ff;
+      --brand: #5ca9ff;
+      --brand-2: #8b5cff;
+      --ok: #3ecf8e;
+      --warn: #ffcc66;
+      --bad: #ff6b6b;
+      --card: #0f1530;
+      --border: #20284a;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --radius: 18px;
+    }
+    * { box-sizing: border-box }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", "Apple Color Emoji", "Segoe UI Emoji";
+      background: radial-gradient(1200px 800px at 80% -10%, rgba(140,100,255,.15), transparent 60%),
+                  radial-gradient(900px 600px at -10% 110%, rgba(92,169,255,.17), transparent 60%),
+                  var(--bg);
+      color: var(--text);
+      overflow: hidden;
+    }
+
+    /* ---------- Layout ---------- */
+    .app {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      grid-template-rows: 72px 1fr;
+      grid-template-areas: 
+        "sidebar header"
+        "sidebar main";
+      height: 100vh;
+    }
+    header {
+      grid-area: header;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0));
+      backdrop-filter: blur(6px);
+    }
+    .sidebar {
+      grid-area: sidebar;
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0));
+      border-right: 1px solid var(--border);
+      padding: 18px 14px;
+      overflow-y: auto;
+    }
+    main {
+      grid-area: main;
+      padding: 22px;
+      overflow: auto;
+    }
+
+    /* ---------- Common ---------- */
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+    }
+    .brand .logo {
+      width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center;
+      background: conic-gradient(from 200deg, var(--brand), var(--brand-2));
+      box-shadow: var(--shadow);
+      font-weight: 800; color: #0b1020;
+    }
+    .muted { color: var(--muted); }
+    .badge { font-size: 12px; color: #d0ddff; background: #1a2142; border: 1px solid var(--border); padding: 4px 8px; border-radius: 999px; }
+
+    .card {
+      background: linear-gradient(180deg, #0c1330, #0a1130);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      box-shadow: var(--shadow);
+    }
+    .grid {
+      display: grid;
+      gap: 16px;
+    }
+    .grid.cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid.cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+    .btn {
+      appearance: none; border: none; cursor: pointer; font-weight: 600;
+      padding: 10px 14px; border-radius: 12px; background: #1a2142; color: var(--text);
+      border: 1px solid var(--border); transition: .2s transform, .2s background;
+    }
+    .btn:hover { transform: translateY(-1px); background: #1d2550; }
+    .btn.brand { background: linear-gradient(90deg, var(--brand), var(--brand-2)); color: #0b1020; border: none; }
+    .btn.danger { background: #2a1730; border: 1px solid #4a1a2c; }
+
+    nav a {
+      display: flex; align-items: center; gap: 10px; padding: 12px 12px; margin: 4px 0;
+      color: var(--text); text-decoration: none; border-radius: 12px; border: 1px solid transparent;
+    }
+    nav a.active, nav a:hover { background: #121a3a; border-color: var(--border); }
+
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 10px 12px; border-bottom: 1px solid var(--border); text-align: left; }
+    th { color: #b7c6e8; font-weight: 600; }
+
+    input, select, textarea {
+      width: 100%; padding: 10px 12px; border-radius: 12px; background: #0f1530; border: 1px solid var(--border);
+      color: var(--text); outline: none;
+    }
+    label { display:block; font-size: 14px; color: var(--muted); margin-bottom: 6px; }
+    form .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    .kpi { font-size: 28px; font-weight: 800; }
+    .kpi.ok { color: var(--ok); }
+    .kpi.warn { color: var(--warn); }
+    .kpi.bad { color: var(--bad); }
+
+    .hide { display: none !important; }
+
+    /* Login screen */
+    .login {
+      height: 100vh; display: grid; place-items: center; padding: 24px;
+      background:
+        radial-gradient(1100px 700px at 0% 100%, rgba(92,169,255,.15), transparent 60%),
+        radial-gradient(900px 600px at 100% 0%, rgba(139,92,255,.18), transparent 60%),
+        var(--bg);
+    }
+    .login .panel { max-width: 440px; width: 100%; }
+    .login h1 { margin: 6px 0 2px; }
+    .login .sub { color: var(--muted); margin: 0 0 16px; }
+
+    @media (max-width: 980px) {
+      .app { grid-template-columns: 80px 1fr; }
+      .sidebar .label { display: none; }
+      .grid.cols-3 { grid-template-columns: 1fr; }
+      .grid.cols-2 { grid-template-columns: 1fr; }
+      form .row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- LOGIN SCREEN -->
+  <section id="login" class="login">
+    <div class="panel card">
+      <div class="brand"><div class="logo">MS</div> <div>
+        <div>Moja Škola</div>
+        <div class="muted" style="font-size:13px">za državne škole</div>
+      </div></div>
+      <h1>Prijava u e‑dnevnik</h1>
+      <p class="sub">Unesite svoje kredencijale da biste pristupili dnevniku.</p>
+      <form id="loginForm">
+        <label for="email">E‑pošta</label>
+        <input id="email" type="email" placeholder="npr. primer@sloboda.yu" required />
+        <div style="height:10px"></div>
+        <label for="pass">Lozinka</label>
+        <input id="pass" type="password" placeholder="Lozinka" minlength="6" required />
+        <div style="height:14px"></div>
+        <button class="btn brand" type="submit">Prijavi se</button>
+        <div id="loginError" class="muted" style="margin-top:10px;color:var(--bad)"></div>
+      </form>
+      <div style="margin-top:14px" class="muted" aria-live="polite">
+ 
+      </div>
+    </div>
+  </section>
+
+  <!-- APP -->
+  <section id="app" class="app hide" aria-live="polite">
+    <aside class="sidebar">
+      <div class="brand" style="margin-bottom:16px">
+        <div class="logo">MS</div>
+        <div class="label">
+          <div style="font-weight:800">Moja Škola</div>
+          <div class="muted" style="font-size:12px">VOU Sloboda</div>
+        </div>
+      </div>
+      <nav id="nav">
+        <a href="#pregled" data-section="pregled" class="active">🏠 <span class="label">Pregled</span></a>
+        <a href="#ocene" data-section="ocene">📊 <span class="label">Ocene</span></a>
+        <a href="#raspored" data-section="raspored">🗓️ <span class="label">Raspored časova</span></a>
+        <a href="#vladanje" data-section="vladanje">📘 <span class="label">Upisi u vladanje</span></a>
+        <a href="#nastavnici" data-section="nastavnici">👩‍🏫 <span class="label">Spisak nastavnika</span></a>
+        <a href="#izostanci" data-section="izostanci">⏱️ <span class="label">Izostanci</span></a>
+        <a href="#pravdanje" data-section="pravdanje">📝 <span class="label">Zahtev za pravdanje</span></a>
+        <a href="#postavke" data-section="postavke">⚙️ <span class="label">Postavke</span></a>
+      </nav>
+      <div style="margin-top:18px">
+        <button id="logoutBtn" class="btn danger" style="width:100%">Odjava</button>
+      </div>
+    </aside>
+
+    <header>
+      <div>
+        <div style="font-weight:800">Vaspitno‑obrazovna ustanova Sloboda</div>
+        <div class="muted" style="font-size:13px">Elektronski dnevnik — razred: <span id="hdrOdeljenje">1c</span></div>
+      </div>
+      <div style="display:flex; align-items:center; gap:10px">
+        <span id="studentName" class="badge">Učenik: Maxim Ninić</span>
+        <span id="studentEmail" class="badge">maximninic@sloboda.yu</span>
+      </div>
+    </header>
+
+    <main>
+      <!-- PREGLED -->
+      <section id="section-pregled" class="grid cols-3">
+        <div class="card">
+          <div class="muted">Prosek</div>
+          <div id="kpiProsek" class="kpi ok">—</div>
+        </div>
+        <div class="card">
+          <div class="muted">Broj izostanaka</div>
+          <div id="kpiIzostanci" class="kpi warn">—</div>
+        </div>
+        <div class="card">
+          <div class="muted">Vladanje</div>
+          <div id="kpiVladanje" class="kpi">Primerno</div>
+        </div>
+        <div class="card" style="grid-column: 1 / -1">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px">
+            <h3 style="margin:0">Najnovije aktivnosti</h3>
+            <span class="badge">automatski prikaz</span>
+          </div>
+          <table id="tblAktivnosti"><thead><tr><th>Vreme</th><th>Stavka</th><th>Detalj</th></tr></thead><tbody></tbody></table>
+        </div>
+      </section>
+
+      <!-- OCENE -->
+      <section id="section-ocene" class="hide">
+        <div class="card">
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:10px">
+            <h3 style="margin:0">Ocene</h3>
+            <div>
+              <span class="badge">Razred 1c</span>
+              <span id="avgBadge" class="badge">Prosek: —</span>
+            </div>
+          </div>
+          <table id="tblOcene"><thead><tr><th>Predmet</th><th>Kontrolni</th><th>Usmeni</th><th>Domaći</th><th>Zaključna</th></tr></thead><tbody></tbody></table>
+        </div>
+      </section>
+
+      <!-- RASPORED -->
+      <section id="section-raspored" class="hide grid cols-2">
+        <div class="card">
+          <h3 style="margin-top:0">Raspored po danima</h3>
+          <div id="rasporedWrap"></div>
+        </div>
+        <div class="card">
+          <h3 style="margin-top:0">Današnje obaveze</h3>
+          <ul id="danasLista"></ul>
+        </div>
+      </section>
+
+      <!-- VLADANJE -->
+      <section id="section-vladanje" class="hide">
+        <div class="card">
+          <h3 style="margin-top:0">Upisi u vladanje</h3>
+          <table id="tblVladanje"><thead><tr><th>Datum</th><th>Opis</th><th>Upisao</th></tr></thead><tbody></tbody></table>
+        </div>
+      </section>
+
+      <!-- NASTAVNICI -->
+      <section id="section-nastavnici" class="hide">
+        <div class="card">
+          <h3 style="margin-top:0">Spisak nastavnika</h3>
+          <table id="tblNastavnici"><thead><tr><th>Predmet</th><th>Nastavnik</th><th>E‑pošta</th></tr></thead><tbody></tbody></table>
+        </div>
+      </section>
+
+      <!-- IZOSTANCI -->
+      <section id="section-izostanci" class="hide grid cols-2">
+        <div class="card">
+          <h3 style="margin-top:0">Evidencija izostanaka</h3>
+          <table id="tblIzostanci"><thead><tr><th>Datum</th><th>Čas</th><th>Predmet</th><th>Status</th></tr></thead><tbody></tbody></table>
+        </div>
+        <div class="card">
+          <h3 style="margin-top:0">Statistika</h3>
+          <div class="muted">Ukupno: <b id="izTot">0</b> • Neopravdano: <b id="izNeop">0</b> • Opravdano: <b id="izOpr">0</b></div>
+        </div>
+      </section>
+
+      <!-- PRAVDANJE -->
+      <section id="section-pravdanje" class="hide grid cols-2">
+        <div class="card">
+          <h3 style="margin-top:0">Podnesi zahtev za pravdanje</h3>
+          <form id="frmPravdanje">
+            <div class="row">
+              <div>
+                <label for="pDatum">Datum izostanka</label>
+                <input id="pDatum" type="date" required />
+              </div>
+              <div>
+                <label for="pCas">Čas (1–8)</label>
+                <input id="pCas" type="number" min="1" max="8" required />
+              </div>
+            </div>
+            <div class="row">
+              <div>
+                <label for="pPredmet">Predmet</label>
+                <select id="pPredmet" required></select>
+              </div>
+              <div>
+                <label for="pRazlog">Razlog</label>
+                <select id="pRazlog" required>
+                  <option value="Zdravstveni razlozi">Zdravstveni razlozi</option>
+                  <option value="Porodične obaveze">Porodične obaveze</option>
+                  <option value="Prevoz / logistika">Prevoz / logistika</option>
+                  <option value="Drugo">Drugo</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <label for="pNapomena">Napomena (opciono)</label>
+              <textarea id="pNapomena" rows="4" placeholder="Kratko obrazloženje..."></textarea>
+            </div>
+            <div style="display:flex; gap:10px; margin-top:10px">
+              <button class="btn brand" type="submit">Podnesi zahtev</button>
+              <button class="btn" type="reset">Poništi</button>
+            </div>
+          </form>
+        </div>
+        <div class="card">
+          <h3 style="margin-top:0">Moji zahtevi</h3>
+          <table id="tblZahtevi"><thead><tr><th>Datum</th><th>Čas</th><th>Predmet</th><th>Razlog</th><th>Status</th></tr></thead><tbody></tbody></table>
+        </div>
+      </section>
+
+      <!-- POSTAVKE -->
+      <section id="section-postavke" class="hide">
+        <div class="card">
+          <h3 style="margin-top:0">Postavke</h3>
+          <div class="muted" style="margin-bottom:8px">Ove postavke važe samo na ovom uređaju.</div>
+          <div class="grid cols-2">
+            <div>
+              <label for="darkToggle">Tamni režim</label>
+              <button id="darkToggle" class="btn">Uključi / Isključi</button>
+            </div>
+            <div>
+            
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </section>
+
+  <script>
+    // ----------------------- DEMO PODACI -----------------------
+    const STUDENT = { ime: "Maxim Ninić", odeljenje: "1c", email: "maximninic@sloboda.yu" };
+    const LOGIN = { email: "maximninic@sloboda.yu", pass: "Velki5515" };
+
+    const predmeti = [
+      { naziv: "Srpski jezik", nastavnik: "Jelena Vasiljević", email: "j.vasiljevic@sloboda.yu" },
+      { naziv: "Matematika", nastavnik: "Marko Jovanović", email: "m.jovanovic@sloboda.yu" },
+      { naziv: "Engleski jezik", nastavnik: "Ana Popović", email: "a.popovic@sloboda.yu" },
+      { naziv: "Fizika", nastavnik: "Miloš Ilić", email: "m.ilic@sloboda.yu" },
+      { naziv: "Hemija", nastavnik: "Ivana Nikolić", email: "i.nikolic@sloboda.yu" },
+      { naziv: "Informatika", nastavnik: "Petar Kovačević", email: "p.kovacevic@sloboda.yu" }
+    ];
+
+    const ocene = [
+      { predmet: "Srpski jezik", kontrolni: 4, usmeni: 5, domaci: 5, zakljucna: 5 },
+      { predmet: "Matematika",   kontrolni: 5, usmeni: 4, domaci: 5, zakljucna: 5 },
+      { predmet: "Engleski jezik",kontrolni: 5, usmeni: 5, domaci: 5, zakljucna: 5 },
+      { predmet: "Fizika",        kontrolni: 4, usmeni: 4, domaci: 5, zakljucna: 4 },
+      { predmet: "Hemija",        kontrolni: 4, usmeni: 4, domaci: 4, zakljucna: 4 },
+      { predmet: "Informatika",   kontrolni: 5, usmeni: 5, domaci: 5, zakljucna: 5 }
+    ];
+
+    const raspored = {
+      Ponedeljak:  ["Matematika", "Srpski jezik", "Fizika", "Engleski jezik", "Informatika"],
+      Utorak:      ["Hemija", "Matematika", "Srpski jezik", "Fizika"],
+      Sreda:       ["Informatika", "Engleski jezik", "Matematika", "Fizika"],
+      Četvrtak:    ["Srpski jezik", "Hemija", "Matematika", "Fizika", "Engleski jezik"],
+      Petak:       ["Informatika", "Matematika", "Srpski jezik"],
+    };
+
+    let izostanci = JSON.parse(localStorage.getItem('izostanci')||'null') || [
+      { datum: "2025-03-12", cas: 2, predmet: "Matematika", status: "Neopravdano" },
+      { datum: "2025-04-02", cas: 5, predmet: "Fizika", status: "Opravdano" },
+      { datum: "2025-05-21", cas: 1, predmet: "Srpski jezik", status: "Neopravdano" },
+    ];
+
+    let vladanje = JSON.parse(localStorage.getItem('vladanje')||'null') || [
+      { datum: "2025-02-10", opis: "Aktivno učešće na času, pomoć drugarima.", upisao: "Razredni starešina" },
+      { datum: "2025-03-15", opis: "Kašnjenje 10 minuta na prvi čas.", upisao: "Dežurni nastavnik" },
+      { datum: "2025-05-05", opis: "Učešće na takmičenju iz Informatike – pohvala.", upisao: "Predmetni nastavnik" },
+    ];
+
+    let zahtevi = JSON.parse(localStorage.getItem('zahtevi')||'null') || [];
+
+    // ----------------------- POMOĆNE -----------------------
+    const $ = sel => document.querySelector(sel);
+    const $$ = sel => Array.from(document.querySelectorAll(sel));
+
+    function fmtDate(iso){
+      const d = new Date(iso);
+      if (isNaN(d)) return iso;
+      return d.toLocaleDateString('sr-RS');
+    }
+
+    function calcProsek(){
+      const sum = ocene.reduce((a,c)=> a + (c.zakljucna||0), 0);
+      const avg = (sum / ocene.length).toFixed(2);
+      return avg;
+    }
+
+    function refreshKPI(){
+      const avg = calcProsek();
+      $('#kpiProsek').textContent = avg;
+      $('#avgBadge').textContent = `Prosek: ${avg}`;
+
+      const tot = izostanci.length;
+      const opr = izostanci.filter(i=>i.status==="Opravdano").length;
+      const neop = tot - opr;
+      $('#kpiIzostanci').textContent = tot;
+      $('#izTot').textContent = tot; $('#izOpr').textContent = opr; $('#izNeop').textContent = neop;
+    }
+
+    function fillTables(){
+      // Ocene
+      const oBody = $('#tblOcene tbody'); oBody.innerHTML = '';
+      ocene.forEach(o=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${o.predmet}</td><td>${o.kontrolni}</td><td>${o.usmeni}</td><td>${o.domaci}</td><td>${o.zakljucna}</td>`;
+        oBody.appendChild(tr);
+      });
+
+      // Raspored
+      const wrap = $('#rasporedWrap'); wrap.innerHTML='';
+      Object.entries(raspored).forEach(([dan, casovi])=>{
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `<div style="font-weight:700;margin-bottom:6px">${dan}</div>` +
+          casovi.map((p,i)=>`<div class="muted">${i+1}. ${p}</div>`).join('');
+        wrap.appendChild(card);
+      });
+
+      // Danas lista
+      const danas = new Date().toLocaleDateString('sr-RS', { weekday:'long' });
+      const mapKey = Object.keys(raspored).find(k=>k.toLowerCase()===danas.toLowerCase());
+      const todayArr = mapKey ? raspored[mapKey] : [];
+      const ul = $('#danasLista'); ul.innerHTML = todayArr.map((p,i)=>`<li>${i+1}. ${p}</li>`).join('') || '<span class="muted">Nema nastave danas.</span>';
+
+      // Vladanje
+      const vBody = $('#tblVladanje tbody'); vBody.innerHTML='';
+      vladanje.sort((a,b)=>a.datum<b.datum?1:-1).forEach(v=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${fmtDate(v.datum)}</td><td>${v.opis}</td><td>${v.upisao}</td>`;
+        vBody.appendChild(tr);
+      });
+
+      // Nastavnici
+      const nBody = $('#tblNastavnici tbody'); nBody.innerHTML='';
+      predmeti.forEach(p=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${p.naziv}</td><td>${p.nastavnik}</td><td>${p.email}</td>`;
+        nBody.appendChild(tr);
+      });
+
+      // Izostanci
+      const iBody = $('#tblIzostanci tbody'); iBody.innerHTML='';
+      izostanci.sort((a,b)=>a.datum<b.datum?1:-1).forEach(i=>{
+        const tr = document.createElement('tr');
+        const cls = i.status==="Neopravdano"? 'badge' : 'badge';
+        tr.innerHTML = `<td>${fmtDate(i.datum)}</td><td>${i.cas}</td><td>${i.predmet}</td><td><span class="${cls}" style="background:${i.status==='Neopravdano'?'#2a1730':'#0f2f25'}; border-color:${i.status==='Neopravdano'?'#4a1a2c':'#1d5b47'}">${i.status}</span></td>`;
+        iBody.appendChild(tr);
+      });
+
+      // Pravdanje — predmeti select
+      const sel = $('#pPredmet'); sel.innerHTML = predmeti.map(p=>`<option>${p.naziv}</option>`).join('');
+
+      // Aktivnosti (feed)
+      const aBody = $('#tblAktivnosti tbody'); aBody.innerHTML='';
+      const aktivnosti = [
+        { t: 'Ocena', d: `Uneta zaključna ocena ${ocene[1].zakljucna} iz ${ocene[1].predmet}` },
+        { t: 'Vladanje', d: vladanje[0].opis },
+        { t: 'Izostanak', d: `${izostanci[0].status.toLowerCase()} (${izostanci[0].predmet})` },
+      ];
+      const now = new Date();
+      aktivnosti.forEach((a,ix)=>{
+        const tr = document.createElement('tr');
+        const dt = new Date(now.getTime() - (ix*86400000));
+        tr.innerHTML = `<td>${dt.toLocaleString('sr-RS')}</td><td>${a.t}</td><td>${a.d}</td>`;
+        aBody.appendChild(tr);
+      });
+    }
+
+    // ----------------------- RUTING / UI -----------------------
+    function showSection(id){
+      $$('main section').forEach(s=>s.classList.add('hide'));
+      $('#section-'+id).classList.remove('hide');
+      $$('#nav a').forEach(a=>a.classList.toggle('active', a.dataset.section===id));
+      history.replaceState(null, '', '#'+id);
+    }
+
+    $$('#nav a').forEach(a=>a.addEventListener('click', e=>{
+      e.preventDefault();
+      showSection(a.dataset.section);
+    }));
+
+    // ----------------------- LOGIN -----------------------
+    const loginForm = $('#loginForm');
+    loginForm.addEventListener('submit', (e)=>{
+      e.preventDefault();
+      const email = $('#email').value.trim();
+      const pass = $('#pass').value;
+      if (email.toLowerCase()===LOGIN.email && pass===LOGIN.pass){
+        sessionStorage.setItem('loggedIn', '1');
+        startApp();
+      } else {
+        $('#loginError').textContent = 'Pogrešna e‑pošta ili lozinka.';
+      }
+    });
+
+    function startApp(){
+      $('#login').classList.add('hide');
+      $('#app').classList.remove('hide');
+      $('#studentName').textContent = 'Učenik: ' + STUDENT.ime;
+      $('#studentEmail').textContent = STUDENT.email;
+      $('#hdrOdeljenje').textContent = STUDENT.odeljenje;
+      fillTables();
+      refreshKPI();
+      const hash = (location.hash||'').replace('#','') || 'pregled';
+      showSection(hash);
+    }
+
+    $('#logoutBtn').addEventListener('click', ()=>{
+      sessionStorage.removeItem('loggedIn');
+      $('#app').classList.add('hide');
+      $('#login').classList.remove('hide');
+      $('#loginForm').reset();
+      $('#loginError').textContent = '';
+    });
+
+    // ----------------------- PRAVDANJE -----------------------
+    $('#frmPravdanje').addEventListener('submit', (e)=>{
+      e.preventDefault();
+      const rec = {
+        datum: $('#pDatum').value,
+        cas: parseInt($('#pCas').value,10),
+        predmet: $('#pPredmet').value,
+        razlog: $('#pRazlog').value,
+        napomena: $('#pNapomena').value.trim(),
+        status: 'Na čekanju'
+      };
+      if(!rec.datum) return;
+      zahtevi.unshift(rec);
+      localStorage.setItem('zahtevi', JSON.stringify(zahtevi));
+      renderZahtevi();
+      e.target.reset();
+      alert('Zahtev je podnet. Status: Na čekanju.');
+    });
+
+    function renderZahtevi(){
+      const body = $('#tblZahtevi tbody'); body.innerHTML='';
+      zahtevi.forEach(z=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${fmtDate(z.datum)}</td><td>${z.cas}</td><td>${z.predmet}</td><td>${z.razlog}</td><td><span class="badge">${z.status}</span></td>`;
+        body.appendChild(tr);
+      });
+    }
+
+    // ----------------------- POSTAVKE -----------------------
+    $('#darkToggle').addEventListener('click', ()=>{
+      // jednostavan toggle: invertujemo pozadinu/panel kroz root varijable
+      const isDark = localStorage.getItem('dark') !== '0';
+      if (isDark){
+        document.documentElement.style.setProperty('--bg', '#f3f6ff');
+        document.documentElement.style.setProperty('--panel', '#ffffff');
+        document.documentElement.style.setProperty('--text', '#0b1020');
+        document.documentElement.style.setProperty('--card', '#ffffff');
+        document.documentElement.style.setProperty('--border', '#d8e0ff');
+        document.body.style.background = '#f3f6ff';
+        localStorage.setItem('dark','0');
+      } else {
+        document.location.reload(); // vrati na podrazumevani tamni
+      }
+    });
+
+    $('#resetDemo').addEventListener('click', ()=>{
+      if(confirm('Resetovati sve demo podatke?')){
+        localStorage.removeItem('izostanci');
+        localStorage.removeItem('vladanje');
+        localStorage.removeItem('zahtevi');
+        document.location.reload();
+      }
+    });
+
+    // ----------------------- PERSIST / INIT -----------------------
+    function persistAll(){
+      localStorage.setItem('izostanci', JSON.stringify(izostanci));
+      localStorage.setItem('vladanje', JSON.stringify(vladanje));
+      localStorage.setItem('zahtevi', JSON.stringify(zahtevi));
+    }
+
+    window.addEventListener('beforeunload', persistAll);
+
+    // Render inicijalno ako je već prijavljen
+    if (sessionStorage.getItem('loggedIn')==='1'){
+      startApp();
+      renderZahtevi();
+    } else {
+      $('#login').classList.remove('hide');
+      renderZahtevi();
+    }
+  </script>
+</body>
+</html>
